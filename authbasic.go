@@ -40,7 +40,7 @@ func (self HttpBasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
 	}
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		user, secret := self.parseAuthHeader(r.Header.Get("Authorization"))
+		user, secret := ParseAuthHeader(r.Header.Get("Authorization"))
 		if len(user) > 0 &&
 			len(secret) > 0 &&
 			self.TryAuthentication(r, user, secret) {
@@ -58,7 +58,7 @@ func (self HttpBasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-func (self HttpBasicAuthenticator) parseAuthHeader(
+func ParseAuthHeader(
 	header string,
 ) (user, secret string) {
 	if !strings.HasPrefix(header, BASIC_PREFIX) {
