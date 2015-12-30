@@ -21,13 +21,16 @@ package http
 import (
 	"testing"
 	"time"
+
+	"github.com/raiqub/data"
 )
 
 const TOKEN_SALT = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
 	"Hhqb/1omn6c"
 
 func TestSessionLifetime(t *testing.T) {
-	ts := NewSessionCache(time.Millisecond*10, TOKEN_SALT)
+	store := data.NewCacheStore(time.Millisecond * 10)
+	ts := NewSessionCache(store, TOKEN_SALT)
 
 	t1 := ts.Add()
 	t2 := ts.Add()
@@ -79,24 +82,30 @@ func TestSessionHandling(t *testing.T) {
 		9: 4099,
 	}
 
-	ts := NewSessionCache(time.Millisecond*100, TOKEN_SALT)
-	if count := ts.Count(); count != 0 {
+	store := data.NewCacheStore(time.Millisecond * 100)
+	ts := NewSessionCache(store, TOKEN_SALT)
+	if _, err := ts.Count(); err != nil {
+		t.Fatal("The Count() method should be supported by MemStore")
+		return
+	}
+
+	if count, _ := ts.Count(); count != 0 {
 		t.Errorf(
 			"The session cache should be empty, but it has %d items",
 			count)
 	}
 
-	lastCount := ts.Count()
+	lastCount, _ := ts.Count()
 	for i, _ := range testValues {
 		item := &testValues[i]
 		item.token = ts.Add()
 
-		if ts.Count() != lastCount+1 {
+		if count, _ := ts.Count(); count != lastCount+1 {
 			t.Errorf(
 				"The new session '%s' was not stored into session cache",
 				item.token)
 		}
-		lastCount = ts.Count()
+		lastCount, _ = ts.Count()
 
 		err := ts.Set(item.token, item.value)
 		if err != nil {
@@ -104,9 +113,9 @@ func TestSessionHandling(t *testing.T) {
 		}
 	}
 
-	if ts.Count() != len(testValues) {
+	if count, _ := ts.Count(); count != len(testValues) {
 		t.Errorf("The session count do not match (%d!=%d)",
-			ts.Count(), len(testValues))
+			count, len(testValues))
 	}
 
 	for _, i := range testValues {
@@ -126,7 +135,7 @@ func TestSessionHandling(t *testing.T) {
 	if _, err := ts.Get(rmTestKey.token); err == nil {
 		t.Errorf("The removed session %s should not be retrieved", rmTestKey.ref)
 	}
-	if ts.Count() == len(testValues) {
+	if count, _ := ts.Count(); count == len(testValues) {
 		t.Error("The session count should not match")
 	}
 
@@ -150,7 +159,8 @@ func TestSessionHandling(t *testing.T) {
 }
 
 func BenchmarkSessionCreation(b *testing.B) {
-	ts := NewSessionCache(time.Millisecond, TOKEN_SALT)
+	store := data.NewCacheStore(time.Millisecond)
+	ts := NewSessionCache(store, TOKEN_SALT)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

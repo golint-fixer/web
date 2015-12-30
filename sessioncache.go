@@ -21,30 +21,43 @@ package http
 import (
 	"errors"
 	"fmt"
+
+	"github.com/raiqub/data"
 	"github.com/skarllot/raiqub/crypt"
-	"github.com/skarllot/raiqub/data"
-	"time"
 )
 
 // A SessionCache provides a temporary token to uniquely identify an user
 // session.
 type SessionCache struct {
-	cache  *data.Cache
+	cache  data.Store
 	salter *crypt.Salter
 }
 
-// NewSessionCache creates a new instance of SessionCache and defines a lifetime
+// NewSessionCache creates a new instance of SessionCache and defines a store
 // for sessions and a initial salt for random input.
-func NewSessionCache(d time.Duration, salt string) *SessionCache {
+func NewSessionCache(store data.Store, salt string) *SessionCache {
 	return &SessionCache{
-		cache: data.NewCache(d),
+		cache: store,
 		salter: crypt.NewSalter(
 			crypt.NewRandomSourceListSecure(), []byte(salt)),
 	}
 }
 
+// NewSessionCacheFast creates a new instance of SessionCache that relies only
+// on system random source and defines a store for sessions and a initial salt
+// for random input.
+func NewSessionCacheFast(store data.Store, salt string) *SessionCache {
+	return &SessionCache{
+		cache:  store,
+		salter: crypt.NewSalter(crypt.NewRandomSourceList(), []byte(salt)),
+	}
+}
+
 // Count gets the number of tokens stored by current instance.
-func (s *SessionCache) Count() int {
+//
+// Errors:
+// NotSupportedError when current method is not supported by store.
+func (s *SessionCache) Count() (int, error) {
 	return s.cache.Count()
 }
 
