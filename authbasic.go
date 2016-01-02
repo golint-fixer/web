@@ -24,32 +24,33 @@ import (
 )
 
 const (
-	BASIC_PREFIX = "Basic "
-	BASIC_REALM  = BASIC_PREFIX + "realm=\"Restricted\""
+	basicPrefix = "Basic "
+	basicRealm  = basicPrefix + "realm=\"Restricted\""
 )
 
-// A HttpBasicAuthenticator represents a handler for HTTP basic authentication.
-type HttpBasicAuthenticator struct {
-	HttpAuthenticable
+// A BasicAuthenticator represents a handler for HTTP basic authentication.
+type BasicAuthenticator struct {
+	Authenticable
 }
 
 // AuthHandler is a HTTP request middleware that enforces authentication.
-func (self HttpBasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
-	if self.HttpAuthenticable == nil {
+func (auth BasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
+	if auth.Authenticable == nil {
 		panic("HttpAuthenticable cannot be nil")
 	}
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		user, secret := ParseAuthHeader(r.Header.Get("Authorization"))
+		user, secret := parseAuthHeader(r.Header.Get("Authorization"))
 		if len(user) > 0 &&
 			len(secret) > 0 &&
-			self.TryAuthentication(r, user, secret) {
+			auth.TryAuthentication(r, user, secret) {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		HttpHeader_WwwAuthenticate().
-			SetValue(BASIC_REALM).
+		NewHeader().
+			WwwAuthenticate().
+			SetValue(basicRealm).
 			SetWriter(w.Header())
 		http.Error(w, http.StatusText(http.StatusUnauthorized),
 			http.StatusUnauthorized)
@@ -58,13 +59,13 @@ func (self HttpBasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(f)
 }
 
-func ParseAuthHeader(
+func parseAuthHeader(
 	header string,
 ) (user, secret string) {
-	if !strings.HasPrefix(header, BASIC_PREFIX) {
+	if !strings.HasPrefix(header, basicPrefix) {
 		return
 	}
-	payload, err := base64.StdEncoding.DecodeString(header[len(BASIC_PREFIX):])
+	payload, err := base64.StdEncoding.DecodeString(header[len(basicPrefix):])
 	if err != nil {
 		return
 	}
@@ -77,3 +78,5 @@ func ParseAuthHeader(
 	user, secret = strings.TrimSpace(user), strings.TrimSpace(secret)
 	return
 }
+
+var _ Authenticator = (*BasicAuthenticator)(nil)

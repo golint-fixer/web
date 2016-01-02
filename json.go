@@ -24,41 +24,49 @@ import (
 )
 
 const (
-	// Defines the maximum data sent by client to 10 MB
-	HTTP_BODY_MAX_LENGTH = 1048576
-	// WebDAV; RFC 4918
+	// HTTPBodyMaxLength defines the maximum data sent by client to 10 MB
+	HTTPBodyMaxLength = 1048576
+
+	// StatusUnprocessableEntity defines WebDAV status; RFC 4918
 	StatusUnprocessableEntity = 422
 )
 
-// JsonWrite sets response content type to JSON, sets HTTP status and serializes
+// JSONWrite sets response content type to JSON, sets HTTP status and serializes
 // defined content to JSON format.
-func JsonWrite(w http.ResponseWriter, status int, content interface{}) {
-	HttpHeader_ContentType_Json().SetWriter(w.Header())
+func JSONWrite(w http.ResponseWriter, status int, content interface{}) {
+	NewHeader().ContentType().JSON().SetWriter(w.Header())
 	w.WriteHeader(status)
 	if content != nil {
 		json.NewEncoder(w).Encode(content)
 	}
 }
 
-// JsonRead tries to read client sent content using JSON deserialization and
+// JSONRead tries to read client sent content using JSON deserialization and
 // writes it to defined object.
-func JsonRead(body io.ReadCloser, obj interface{}, w http.ResponseWriter) bool {
-	content, err := ioutil.ReadAll(io.LimitReader(body, HTTP_BODY_MAX_LENGTH))
+func JSONRead(body io.ReadCloser, obj interface{}, w http.ResponseWriter) bool {
+	content, err := ioutil.ReadAll(io.LimitReader(body, HTTPBodyMaxLength))
 	if err != nil {
-		jerr := NewJsonErrorFromError(http.StatusInternalServerError, err)
-		JsonWrite(w, jerr.Status, jerr)
+		jerr := NewJSONError().
+			FromError(err).
+			Build()
+		JSONWrite(w, jerr.Status, jerr)
 		return false
 	}
 
 	if err := body.Close(); err != nil {
-		jerr := NewJsonErrorFromError(http.StatusInternalServerError, err)
-		JsonWrite(w, jerr.Status, jerr)
+		jerr := NewJSONError().
+			FromError(err).
+			Build()
+		JSONWrite(w, jerr.Status, jerr)
 		return false
 	}
 
 	if err := json.Unmarshal(content, obj); err != nil {
-		jerr := NewJsonErrorFromError(StatusUnprocessableEntity, err)
-		JsonWrite(w, jerr.Status, jerr)
+		jerr := NewJSONError().
+			FromError(err).
+			Status(StatusUnprocessableEntity).
+			Build()
+		JSONWrite(w, jerr.Status, jerr)
 		return false
 	}
 

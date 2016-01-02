@@ -20,13 +20,13 @@ import (
 	"net/http"
 )
 
-// A HttpMiddlewareFunc represents a HTTP handler that is called before target
+// A MiddlewareFunc represents a HTTP handler that is called before target
 // HTTP handler.
-type HttpMiddlewareFunc func(http.Handler) http.Handler
+type MiddlewareFunc func(http.Handler) http.Handler
 
 // A Chain represents a chain of HTTP middlewares that are called before target
 // HTTP handler.
-type Chain []HttpMiddlewareFunc
+type Chain []MiddlewareFunc
 
 // Get returns a HTTP handler which is a chain of middlewares and then the
 // specified handler.

@@ -25,12 +25,12 @@ import (
 	"github.com/raiqub/data"
 )
 
-const TOKEN_SALT = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
+const TokenSalt = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
 	"Hhqb/1omn6c"
 
 func TestSessionLifetime(t *testing.T) {
 	store := data.NewCacheStore(time.Millisecond * 10)
-	ts := NewSessionCache(store, TOKEN_SALT)
+	ts := NewSessionCache(store, TokenSalt)
 
 	t1 := ts.Add()
 	t2 := ts.Add()
@@ -83,7 +83,7 @@ func TestSessionHandling(t *testing.T) {
 	}
 
 	store := data.NewCacheStore(time.Millisecond * 100)
-	ts := NewSessionCache(store, TOKEN_SALT)
+	ts := NewSessionCache(store, TokenSalt)
 	if _, err := ts.Count(); err != nil {
 		t.Fatal("The Count() method should be supported by MemStore")
 		return
@@ -96,7 +96,7 @@ func TestSessionHandling(t *testing.T) {
 	}
 
 	lastCount, _ := ts.Count()
-	for i, _ := range testValues {
+	for i := range testValues {
 		item := &testValues[i]
 		item.token = ts.Add()
 
@@ -160,7 +160,7 @@ func TestSessionHandling(t *testing.T) {
 
 func BenchmarkSessionCreation(b *testing.B) {
 	store := data.NewCacheStore(time.Millisecond)
-	ts := NewSessionCache(store, TOKEN_SALT)
+	ts := NewSessionCache(store, TokenSalt)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

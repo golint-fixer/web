@@ -18,21 +18,19 @@ package http
 
 import "net/http"
 
-// A HttpAuthenticable defines rules for a type that offers HTTP authentication.
-type HttpAuthenticable interface {
+// A Authenticable defines rules for a type that offers HTTP authentication.
+type Authenticable interface {
 	TryAuthentication(r *http.Request, user, secret string) bool
 }
 
-// A HttpAuthenticator defines rules for a type that handles HTTP
-// authentication.
-type HttpAuthenticator interface {
+// A Authenticator defines rules for a type that handles HTTP authentication.
+type Authenticator interface {
 	AuthHandler(http.Handler) http.Handler
 }
 
-// HttpHeader_WwwAuthenticate creates a HTTP header to require client
-// authentication.
-func HttpHeader_WwwAuthenticate() *HttpHeader {
-	return &HttpHeader{
+// WwwAuthenticate creates a HTTP header to require client authentication.
+func (HeaderBuilder) WwwAuthenticate() *Header {
+	return &Header{
 		"WWW-Authenticate",
 		"", // type and params
 	}

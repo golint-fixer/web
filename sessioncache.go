@@ -19,9 +19,6 @@
 package http
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/raiqub/data"
 	"github.com/skarllot/raiqub/crypt"
 )
@@ -61,18 +58,14 @@ func (s *SessionCache) Count() (int, error) {
 	return s.cache.Count()
 }
 
-// getInvalidTokenError gets the default error when an invalid or expired token
-// is requested.
-func (s *SessionCache) getInvalidTokenError(token string) error {
-	return errors.New(fmt.Sprintf(
-		"The requested token '%s' is invalid or is expired", token))
-}
-
 // Get gets the value stored by specified token.
+//
+// Errors:
+// InvalidTokenError when requested token could not be found.
 func (s *SessionCache) Get(token string) (interface{}, error) {
 	v, err := s.cache.Get(token)
 	if err != nil {
-		return nil, s.getInvalidTokenError(token)
+		return nil, InvalidTokenError(token)
 	}
 	return v, err
 }
@@ -95,19 +88,25 @@ func (s *SessionCache) Add() string {
 }
 
 // Delete deletes specified token from current SessionCache instance.
+//
+// Errors:
+// InvalidTokenError when requested token could not be found.
 func (s *SessionCache) Delete(token string) error {
 	err := s.cache.Delete(token)
 	if err != nil {
-		return s.getInvalidTokenError(token)
+		return InvalidTokenError(token)
 	}
 	return nil
 }
 
 // Set store a value to specified token.
+//
+// Errors:
+// InvalidTokenError when requested token could not be found.
 func (s *SessionCache) Set(token string, value interface{}) error {
 	err := s.cache.Set(token, value)
 	if err != nil {
-		return s.getInvalidTokenError(token)
+		return InvalidTokenError(token)
 	}
 	return nil
 }

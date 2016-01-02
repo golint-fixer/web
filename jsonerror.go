@@ -16,12 +16,8 @@
 
 package http
 
-import (
-	"reflect"
-)
-
-// A JsonError represents an error returned by JSON-based API.
-type JsonError struct {
+// A JSONError represents an error returned by JSON-based API.
+type JSONError struct {
 	// HTTP status code.
 	Status int `json:"status,omitempty"`
 	// Error code.
@@ -32,20 +28,4 @@ type JsonError struct {
 	Message string `json:"message,omitempty"`
 	// A URL for reference.
 	MoreInfo string `json:"moreInfo,omitempty"`
-}
-
-func NewJsonErrorFromError(status int, e error) JsonError {
-	errType := reflect.TypeOf(e)
-	var typeName string
-	if errType.Kind() == reflect.Ptr {
-		typeName = errType.Elem().Name()
-	} else {
-		typeName = errType.Name()
-	}
-
-	return JsonError{
-		Status:  status,
-		Type:    typeName,
-		Message: e.Error(),
-	}
 }

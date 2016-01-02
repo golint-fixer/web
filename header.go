@@ -20,8 +20,8 @@ import (
 	"net/http"
 )
 
-// A HttpHeader represents a key-value pair in a HTTP header.
-type HttpHeader struct {
+// A Header represents a key-value pair in a HTTP header.
+type Header struct {
 	// HTTP header field name.
 	Name string
 	// HTTP header field value.
@@ -29,32 +29,32 @@ type HttpHeader struct {
 }
 
 // Clone make a copy of current instance.
-func (s HttpHeader) Clone() *HttpHeader {
+func (s Header) Clone() *Header {
 	return &s
 }
 
 // GetReader gets HTTP header value, as defined by current instance, from
 // Request Header and sets to current instance.
-func (s *HttpHeader) GetReader(h http.Header) *HttpHeader {
+func (s *Header) GetReader(h http.Header) *Header {
 	s.Value = h.Get(s.Name)
 	return s
 }
 
 // SetName sets header name of current instance.
-func (s *HttpHeader) SetName(name string) *HttpHeader {
+func (s *Header) SetName(name string) *Header {
 	s.Name = name
 	return s
 }
 
 // SetValue sets header value of current instance.
-func (s *HttpHeader) SetValue(value string) *HttpHeader {
+func (s *Header) SetValue(value string) *Header {
 	s.Value = value
 	return s
 }
 
 // SetWriter sets HTTP header, as defined by current instance, to ResponseWriter
 // Header.
-func (s *HttpHeader) SetWriter(h http.Header) *HttpHeader {
+func (s *Header) SetWriter(h http.Header) *Header {
 	h.Set(s.Name, s.Value)
 	return s
 }
