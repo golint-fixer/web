@@ -19,8 +19,9 @@
 package http
 
 import (
-	"github.com/raiqub/data"
 	"github.com/skarllot/raiqub/crypt"
+	"gopkg.in/raiqub/data.v0"
+	"gopkg.in/raiqub/dot.v1"
 )
 
 // A SessionCache provides a temporary token to uniquely identify an user
@@ -62,12 +63,13 @@ func (s *SessionCache) Count() (int, error) {
 //
 // Errors:
 // InvalidTokenError when requested token could not be found.
-func (s *SessionCache) Get(token string) (interface{}, error) {
-	v, err := s.cache.Get(token)
-	if err != nil {
-		return nil, InvalidTokenError(token)
+func (s *SessionCache) Get(token string, ref interface{}) error {
+	err := s.cache.Get(token, ref)
+	if _, ok := err.(dot.InvalidKeyError); ok {
+		return InvalidTokenError(token)
 	}
-	return v, err
+
+	return err
 }
 
 // Add creates a new unique token and stores it into current SessionCache

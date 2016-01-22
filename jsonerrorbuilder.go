@@ -54,12 +54,6 @@ func NewJSONError() JSONErrorBuilder {
 	}}
 }
 
-func (b *jsonErrorBuilder) Basic(status int, msg string) JSONErrorBuilder {
-	b.instance.Status = status
-	b.instance.Message = msg
-	return b
-}
-
 func (b *jsonErrorBuilder) Build() JSONError {
 	return b.instance
 }

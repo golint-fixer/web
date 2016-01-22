@@ -22,32 +22,32 @@ import (
 	"testing"
 	"time"
 
-	"github.com/raiqub/data"
+	"gopkg.in/raiqub/data.v0/memstore"
 )
 
 const TokenSalt = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
 	"Hhqb/1omn6c"
 
 func TestSessionLifetime(t *testing.T) {
-	store := data.NewCacheStore(time.Millisecond * 10)
+	store := memstore.New(time.Millisecond*10, false)
 	ts := NewSessionCache(store, TokenSalt)
 
 	t1 := ts.Add()
 	t2 := ts.Add()
 
-	if _, err := ts.Get(t1); err != nil {
+	if err := ts.Get(t1, nil); err != nil {
 		t.Error("The session t1 was not stored")
 	}
-	if _, err := ts.Get(t2); err != nil {
+	if err := ts.Get(t2, nil); err != nil {
 		t.Error("The session t2 was not stored")
 	}
 
 	time.Sleep(time.Millisecond * 20)
 
-	if _, err := ts.Get(t1); err == nil {
+	if err := ts.Get(t1, nil); err == nil {
 		t.Error("The session t1 was not expired")
 	}
-	if _, err := ts.Get(t2); err == nil {
+	if err := ts.Get(t2, nil); err == nil {
 		t.Error("The session t2 was not expired")
 	}
 
@@ -82,7 +82,7 @@ func TestSessionHandling(t *testing.T) {
 		9: 4099,
 	}
 
-	store := data.NewCacheStore(time.Millisecond * 100)
+	store := memstore.New(time.Millisecond*100, false)
 	ts := NewSessionCache(store, TokenSalt)
 	if _, err := ts.Count(); err != nil {
 		t.Fatal("The Count() method should be supported by MemStore")
@@ -119,8 +119,8 @@ func TestSessionHandling(t *testing.T) {
 	}
 
 	for _, i := range testValues {
-		v, err := ts.Get(i.token)
-		if err != nil {
+		var v int
+		if err := ts.Get(i.token, &v); err != nil {
 			t.Errorf("The session %s could not be read", i.ref)
 		}
 		if v != i.value {
@@ -132,7 +132,7 @@ func TestSessionHandling(t *testing.T) {
 	if err := ts.Delete(rmTestKey.token); err != nil {
 		t.Errorf("The session %s could not be removed", rmTestKey.ref)
 	}
-	if _, err := ts.Get(rmTestKey.token); err == nil {
+	if err := ts.Get(rmTestKey.token, nil); err == nil {
 		t.Errorf("The removed session %s should not be retrieved", rmTestKey.ref)
 	}
 	if count, _ := ts.Count(); count == len(testValues) {
@@ -148,8 +148,8 @@ func TestSessionHandling(t *testing.T) {
 	}
 	for k, v := range changeValues {
 		item := testValues[k]
-		v2, err := ts.Get(item.token)
-		if err != nil {
+		var v2 int
+		if err := ts.Get(item.token, &v2); err != nil {
 			t.Errorf("The session %s could not be read", item.ref)
 		}
 		if v2 != v {
@@ -159,8 +159,18 @@ func TestSessionHandling(t *testing.T) {
 }
 
 func BenchmarkSessionCreation(b *testing.B) {
-	store := data.NewCacheStore(time.Millisecond)
+	store := memstore.New(time.Millisecond, false)
 	ts := NewSessionCache(store, TokenSalt)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		ts.Add()
+	}
+}
+
+func BenchmarkSessionCreationFast(b *testing.B) {
+	store := memstore.New(time.Millisecond, false)
+	ts := NewSessionCacheFast(store, TokenSalt)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
