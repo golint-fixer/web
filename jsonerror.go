@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package http
+package web
 
 // A JSONError represents an error returned by JSON-based API.
 type JSONError struct {

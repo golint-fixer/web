@@ -1,6 +1,6 @@
-# http
+# web
 
-Raiqub/http is a library for the [Go Programming Language][go]. It provides
+raiqub/web is a library for the [Go Programming Language][go]. It provides
 a toolset to help HTTP server implementation.
 
 ## Status
@@ -11,10 +11,10 @@ a toolset to help HTTP server implementation.
 
 ## Installation
 
-To install raiqub/http library run the following command:
+To install raiqub/web library run the following command:
 
 ~~~ bash
-go get github.com/raiqub/http
+go get github.com/raiqub/web
 ~~~
 
 

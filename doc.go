@@ -15,7 +15,7 @@
  */
 
 /*
-Package http provides operations to help HTTP server implementation.
+Package web provides operations to help HTTP server implementation.
 
 Chain
 
@@ -34,4 +34,4 @@ A SessionCache provides session tokens to uniquely identify an user session and
 links it to specified data. Each token expires automatically if it is not used
 after defined time.
 */
-package http
+package web

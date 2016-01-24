@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package http
+package web
 
 // A HeaderBuilder provides pre-defined HTTP headers.
 type HeaderBuilder int
