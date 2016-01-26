@@ -30,7 +30,10 @@ const TokenSalt = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
 
 func TestSessionLifetime(t *testing.T) {
 	store := memstore.New(time.Millisecond*10, false)
-	ts := NewSessionCache(store, TokenSalt)
+	ts := NewSessionStore().
+		SalterSecure([]byte(TokenSalt)).
+		Store(store).
+		Build()
 
 	t1 := ts.Add()
 	t2 := ts.Add()
@@ -83,7 +86,10 @@ func TestSessionHandling(t *testing.T) {
 	}
 
 	store := memstore.New(time.Millisecond*100, false)
-	ts := NewSessionCache(store, TokenSalt)
+	ts := NewSessionStore().
+		SalterSecure([]byte(TokenSalt)).
+		Store(store).
+		Build()
 	if _, err := ts.Count(); err != nil {
 		t.Fatal("The Count() method should be supported by MemStore")
 		return
@@ -160,7 +166,10 @@ func TestSessionHandling(t *testing.T) {
 
 func BenchmarkSessionCreation(b *testing.B) {
 	store := memstore.New(time.Millisecond, false)
-	ts := NewSessionCache(store, TokenSalt)
+	ts := NewSessionStore().
+		SalterSecure([]byte(TokenSalt)).
+		Store(store).
+		Build()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -170,7 +179,10 @@ func BenchmarkSessionCreation(b *testing.B) {
 
 func BenchmarkSessionCreationFast(b *testing.B) {
 	store := memstore.New(time.Millisecond, false)
-	ts := NewSessionCacheFast(store, TokenSalt)
+	ts := NewSessionStore().
+		SalterFast([]byte(TokenSalt)).
+		Store(store).
+		Build()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {

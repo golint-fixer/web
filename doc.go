@@ -22,15 +22,24 @@ Chain
 A Chain provides a function to chain HTTP handlers, also know as middlewares,
 before a specified HTTP handler. A Chain is basically a slice of middlewares.
 
-HttpHeader
+Header
 
-A HttpHeader provides functions to help handle HTTP headers, both for reading
-from client request and write to server response. Additionally provides some
-pre-defined headers.
+A Header provides functions to help handle HTTP headers, both for reading from
+client request and write to server response.
 
-SessionCache
+HeaderBuilder
 
-A SessionCache provides session tokens to uniquely identify an user session and
+A HeaderBuilder provides some pre-defined HTTP headers.
+
+JSON
+
+Provides a JSONRead and JSONWrite functions for easiest JSON communication, and
+a JSONError struct which defines a format for JSON errors as defined by best
+practices.
+
+SessionStore
+
+A SessionStore provides session tokens to uniquely identify an user session and
 links it to specified data. Each token expires automatically if it is not used
 after defined time.
 */

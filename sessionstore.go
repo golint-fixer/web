@@ -19,43 +19,23 @@
 package web
 
 import (
-	"github.com/skarllot/raiqub/crypt"
+	"gopkg.in/raiqub/crypt.v0"
 	"gopkg.in/raiqub/data.v0"
 	"gopkg.in/raiqub/dot.v1"
 )
 
-// A SessionCache provides a temporary token to uniquely identify an user
+// A SessionStore provides a temporary token to uniquely identify an user
 // session.
-type SessionCache struct {
+type SessionStore struct {
 	cache  data.Store
 	salter *crypt.Salter
-}
-
-// NewSessionCache creates a new instance of SessionCache and defines a store
-// for sessions and a initial salt for random input.
-func NewSessionCache(store data.Store, salt string) *SessionCache {
-	return &SessionCache{
-		cache: store,
-		salter: crypt.NewSalter(
-			crypt.NewRandomSourceListSecure(), []byte(salt)),
-	}
-}
-
-// NewSessionCacheFast creates a new instance of SessionCache that relies only
-// on system random source and defines a store for sessions and a initial salt
-// for random input.
-func NewSessionCacheFast(store data.Store, salt string) *SessionCache {
-	return &SessionCache{
-		cache:  store,
-		salter: crypt.NewSalter(crypt.NewRandomSourceList(), []byte(salt)),
-	}
 }
 
 // Count gets the number of tokens stored by current instance.
 //
 // Errors:
 // NotSupportedError when current method is not supported by store.
-func (s *SessionCache) Count() (int, error) {
+func (s *SessionStore) Count() (int, error) {
 	return s.cache.Count()
 }
 
@@ -63,7 +43,7 @@ func (s *SessionCache) Count() (int, error) {
 //
 // Errors:
 // InvalidTokenError when requested token could not be found.
-func (s *SessionCache) Get(token string, ref interface{}) error {
+func (s *SessionStore) Get(token string, ref interface{}) error {
 	err := s.cache.Get(token, ref)
 	if _, ok := err.(dot.InvalidKeyError); ok {
 		return InvalidTokenError(token)
@@ -74,14 +54,13 @@ func (s *SessionCache) Get(token string, ref interface{}) error {
 
 // Add creates a new unique token and stores it into current SessionCache
 // instance.
-//
-// The token creation will take at least 200 microseconds, but could normally
-// take 2.5 milliseconds. The token generation function it is built with
-// security over performance.
-func (s *SessionCache) Add() string {
-	strSum := s.salter.DefaultToken()
+func (s *SessionStore) Add() string {
+	strSum, err := s.salter.Token(0)
+	if err != nil {
+		panic("Could not generate a new token")
+	}
 
-	err := s.cache.Add(strSum, nil)
+	err = s.cache.Add(strSum, nil)
 	if err != nil {
 		panic("Something is seriously wrong, a duplicated token was generated")
 	}
@@ -93,7 +72,7 @@ func (s *SessionCache) Add() string {
 //
 // Errors:
 // InvalidTokenError when requested token could not be found.
-func (s *SessionCache) Delete(token string) error {
+func (s *SessionStore) Delete(token string) error {
 	err := s.cache.Delete(token)
 	if err != nil {
 		return InvalidTokenError(token)
@@ -105,7 +84,7 @@ func (s *SessionCache) Delete(token string) error {
 //
 // Errors:
 // InvalidTokenError when requested token could not be found.
-func (s *SessionCache) Set(token string, value interface{}) error {
+func (s *SessionStore) Set(token string, value interface{}) error {
 	err := s.cache.Set(token, value)
 	if err != nil {
 		return InvalidTokenError(token)
