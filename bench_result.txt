@@ -1,2 +1,2 @@
-BenchmarkSessionCreation-4    	    2000	    781448 ns/op	   12961 B/op	     201 allocs/op
-BenchmarkSessionCreationFast-4	  100000	     14922 ns/op	    1077 B/op	      15 allocs/op
+BenchmarkSessionCreation-4    	    2000	    774228 ns/op	   10982 B/op	     170 allocs/op
+BenchmarkSessionCreationFast-4	  100000	     14867 ns/op	    1009 B/op	      14 allocs/op

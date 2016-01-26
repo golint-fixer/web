@@ -31,7 +31,7 @@ const TokenSalt = "CvoTVwDw685Ve0qjGn//zmHGKvoCcslYNQT4AQ9FygSk9t6NuzBHuohyO" +
 func TestSessionLifetime(t *testing.T) {
 	store := memstore.New(time.Millisecond*10, false)
 	ts := NewSessionStore().
-		SalterSecure([]byte(TokenSalt)).
+		SalterFast([]byte(TokenSalt)).
 		Store(store).
 		Build()
 
@@ -87,7 +87,7 @@ func TestSessionHandling(t *testing.T) {
 
 	store := memstore.New(time.Millisecond*100, false)
 	ts := NewSessionStore().
-		SalterSecure([]byte(TokenSalt)).
+		SalterFast([]byte(TokenSalt)).
 		Store(store).
 		Build()
 	if _, err := ts.Count(); err != nil {

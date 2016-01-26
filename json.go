@@ -34,7 +34,7 @@ const (
 // JSONWrite sets response content type to JSON, sets HTTP status and serializes
 // defined content to JSON format.
 func JSONWrite(w http.ResponseWriter, status int, content interface{}) {
-	NewHeader().ContentType().JSON().SetWriter(w.Header())
+	NewHeader().ContentType().JSON().Write(w.Header())
 	w.WriteHeader(status)
 	if content != nil {
 		json.NewEncoder(w).Encode(content)

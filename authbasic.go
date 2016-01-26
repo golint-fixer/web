@@ -24,8 +24,9 @@ import (
 )
 
 const (
-	basicPrefix = "Basic "
-	basicRealm  = basicPrefix + "realm=\"Restricted\""
+	authHeaderName = "Authorization"
+	basicPrefix    = "Basic "
+	basicRealm     = basicPrefix + "realm=\"Restricted\""
 )
 
 // A BasicAuthenticator represents a handler for HTTP basic authentication.
@@ -40,7 +41,7 @@ func (auth BasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
 	}
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		user, secret := parseAuthHeader(r.Header.Get("Authorization"))
+		user, secret := parseAuthHeader(r.Header.Get(authHeaderName))
 		if len(user) > 0 &&
 			len(secret) > 0 &&
 			auth.TryAuthentication(r, user, secret) {
@@ -51,7 +52,7 @@ func (auth BasicAuthenticator) AuthHandler(next http.Handler) http.Handler {
 		NewHeader().
 			WwwAuthenticate().
 			SetValue(basicRealm).
-			SetWriter(w.Header())
+			Write(w.Header())
 		http.Error(w, http.StatusText(http.StatusUnauthorized),
 			http.StatusUnauthorized)
 	}

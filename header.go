@@ -33,9 +33,9 @@ func (s Header) Clone() *Header {
 	return &s
 }
 
-// GetReader gets HTTP header value, as defined by current instance, from
-// Request Header and sets to current instance.
-func (s *Header) GetReader(h http.Header) *Header {
+// Read gets HTTP header value, as defined by current instance, from Request
+// Header and sets to current instance.
+func (s *Header) Read(h http.Header) *Header {
 	s.Value = h.Get(s.Name)
 	return s
 }
@@ -52,9 +52,9 @@ func (s *Header) SetValue(value string) *Header {
 	return s
 }
 
-// SetWriter sets HTTP header, as defined by current instance, to ResponseWriter
+// Write sets HTTP header, as defined by current instance, to ResponseWriter
 // Header.
-func (s *Header) SetWriter(h http.Header) *Header {
+func (s *Header) Write(h http.Header) *Header {
 	h.Set(s.Name, s.Value)
 	return s
 }

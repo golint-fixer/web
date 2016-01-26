@@ -28,6 +28,11 @@ type MiddlewareFunc func(http.Handler) http.Handler
 // HTTP handler.
 type Chain []MiddlewareFunc
 
+// NewChain creates a new empty slice of MiddlewareFunc.
+func NewChain() Chain {
+	return make(Chain, 0)
+}
+
 // Get returns a HTTP handler which is a chain of middlewares and then the
 // specified handler.
 func (s Chain) Get(handler http.Handler) http.Handler {

@@ -16,7 +16,10 @@
 
 package web
 
-import "net/http"
+import (
+	"encoding/base64"
+	"net/http"
+)
 
 // A Authenticable defines rules for a type that offers HTTP authentication.
 type Authenticable interface {
@@ -33,5 +36,20 @@ func (HeaderBuilder) WwwAuthenticate() *Header {
 	return &Header{
 		"WWW-Authenticate",
 		"", // type and params
+	}
+}
+
+// Authorization creates a HTTP header to request authentication.
+func (HeaderBuilder) Authorization(user, secret string) *Header {
+	var value string
+
+	if len(user)+len(secret) > 0 {
+		credentials := []byte(user + ":" + secret)
+		value = basicPrefix + base64.StdEncoding.EncodeToString(credentials)
+	}
+
+	return &Header{
+		authHeaderName,
+		value, // credentials
 	}
 }
