@@ -19,6 +19,7 @@ package web
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -61,6 +62,7 @@ func TestBasicAuthenticator(t *testing.T) {
 		{"", "123"},
 		{"", ""},
 	}
+	bodyUnauthorized := http.StatusText(http.StatusUnauthorized)
 
 	for idx, testVal := range testValues {
 		foo := FooAuthenticator(1)
@@ -93,6 +95,15 @@ func TestBasicAuthenticator(t *testing.T) {
 			}
 		default:
 			t.Errorf("Failed authentication: unexpected value %d", int(foo))
+		}
+
+		body := strings.TrimSpace(w.Body.String())
+		if idx == 1 && len(body) > 0 {
+			t.Errorf("Body is not empty: %s", w.Body.String())
+		}
+		if idx != 1 && body != bodyUnauthorized {
+			t.Errorf("Body should be '%s' but got '%s'",
+				bodyUnauthorized, body)
 		}
 	}
 }

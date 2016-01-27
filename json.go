@@ -19,7 +19,6 @@ package web
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -33,21 +32,33 @@ const (
 
 // JSONWrite sets response content type to JSON, sets HTTP status and serializes
 // defined content to JSON format.
-func JSONWrite(w http.ResponseWriter, status int, content interface{}) {
+func JSONWrite(w http.ResponseWriter, status int, content interface{}) error {
 	NewHeader().ContentType().JSON().Write(w.Header())
 	w.WriteHeader(status)
 	if content != nil {
-		json.NewEncoder(w).Encode(content)
+		err := json.NewEncoder(w).Encode(content)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // JSONRead tries to read client sent content using JSON deserialization and
 // writes it to defined object.
+//
+// Returns true whether no error occurred; otherwise, false.
+//
+// Body is automatically closed when true is returned.
 func JSONRead(body io.ReadCloser, obj interface{}, w http.ResponseWriter) bool {
-	content, err := ioutil.ReadAll(io.LimitReader(body, HTTPBodyMaxLength))
-	if err != nil {
+	if err := json.
+		NewDecoder(io.LimitReader(body, HTTPBodyMaxLength)).
+		Decode(obj); err != nil {
+
 		jerr := NewJSONError().
 			FromError(err).
+			Status(StatusUnprocessableEntity).
 			Build()
 		JSONWrite(w, jerr.Status, jerr)
 		return false
@@ -56,15 +67,6 @@ func JSONRead(body io.ReadCloser, obj interface{}, w http.ResponseWriter) bool {
 	if err := body.Close(); err != nil {
 		jerr := NewJSONError().
 			FromError(err).
-			Build()
-		JSONWrite(w, jerr.Status, jerr)
-		return false
-	}
-
-	if err := json.Unmarshal(content, obj); err != nil {
-		jerr := NewJSONError().
-			FromError(err).
-			Status(StatusUnprocessableEntity).
 			Build()
 		JSONWrite(w, jerr.Status, jerr)
 		return false
