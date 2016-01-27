@@ -23,9 +23,6 @@ import (
 )
 
 const (
-	// HTTPBodyMaxLength defines the maximum data sent by client to 10 MB
-	HTTPBodyMaxLength = 1048576
-
 	// StatusUnprocessableEntity defines WebDAV status; RFC 4918
 	StatusUnprocessableEntity = 422
 )
@@ -45,15 +42,20 @@ func JSONWrite(w http.ResponseWriter, status int, content interface{}) error {
 	return nil
 }
 
-// JSONRead tries to read client sent content using JSON deserialization and
-// writes it to defined object.
+// JSONRead tries to read client sent content using JSON decoding and
+// writes it to object pointed to by obj.
 //
 // Returns true whether no error occurred; otherwise, false.
 //
 // Body is automatically closed when true is returned.
-func JSONRead(body io.ReadCloser, obj interface{}, w http.ResponseWriter) bool {
+func JSONRead(
+	body io.ReadCloser,
+	maxlen int64,
+	obj interface{},
+	w http.ResponseWriter,
+) bool {
 	if err := json.
-		NewDecoder(io.LimitReader(body, HTTPBodyMaxLength)).
+		NewDecoder(io.LimitReader(body, maxlen)).
 		Decode(obj); err != nil {
 
 		jerr := NewJSONError().

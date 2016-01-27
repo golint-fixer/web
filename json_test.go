@@ -25,6 +25,11 @@ import (
 	"testing"
 )
 
+const (
+	// BodyMaxLength defines the maximum data sent by client to 10 MB
+	BodyMaxLength = 1048576
+)
+
 type Foo struct {
 	Number    int
 	BigNumber int64
@@ -106,7 +111,7 @@ func TestJSONRead(t *testing.T) {
 	resp := httptest.NewRecorder()
 
 	var fooCopy Foo
-	JSONRead(r, &fooCopy, resp)
+	JSONRead(r, BodyMaxLength, &fooCopy, resp)
 	if !foo.IsEqual(fooCopy) {
 		t.Errorf(
 			"Encoded object is not equal to decoded one."+
