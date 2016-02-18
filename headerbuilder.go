@@ -16,6 +16,10 @@
 
 package web
 
+const (
+	headerNameContentType = "Content-Type"
+)
+
 // A HeaderBuilder provides pre-defined HTTP headers.
 type HeaderBuilder int
 
@@ -122,35 +126,39 @@ type HeaderContentTypeBuilder int
 // Empty creates a HTTP header to undefined content type.
 func (HeaderContentTypeBuilder) Empty() *Header {
 	return &Header{
-		"Content-Type",
+		headerNameContentType,
 		"",
 	}
 }
 
 // HTML creates a HTTP header to define HTML content type.
 func (HeaderContentTypeBuilder) HTML() *Header {
-	return HeaderContentTypeBuilder(0).
-		Empty().
-		SetValue("text/html; charset=utf-8")
+	return &Header{
+		headerNameContentType,
+		"text/html; charset=utf-8",
+	}
 }
 
 // JSON creates a HTTP header to define JSON content type.
 func (HeaderContentTypeBuilder) JSON() *Header {
-	return HeaderContentTypeBuilder(0).
-		Empty().
-		SetValue("application/json; charset=utf-8")
+	return &Header{
+		headerNameContentType,
+		"application/json; charset=utf-8",
+	}
 }
 
 // Text creates a HTTP header to define plain text content type.
 func (HeaderContentTypeBuilder) Text() *Header {
-	return HeaderContentTypeBuilder(0).
-		Empty().
-		SetValue("text/plain; charset=utf-8")
+	return &Header{
+		headerNameContentType,
+		"text/plain; charset=utf-8",
+	}
 }
 
 // XML creates a HTTP header to define XML content type.
 func (HeaderContentTypeBuilder) XML() *Header {
-	return HeaderContentTypeBuilder(0).
-		Empty().
-		SetValue("application/xml; charset=utf-8")
+	return &Header{
+		headerNameContentType,
+		"application/xml; charset=utf-8",
+	}
 }
