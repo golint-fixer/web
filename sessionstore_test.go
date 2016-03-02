@@ -35,8 +35,14 @@ func TestSessionLifetime(t *testing.T) {
 		Store(store).
 		Build()
 
-	t1 := ts.Add()
-	t2 := ts.Add()
+	t1, err := ts.Add(nil)
+	if err != nil {
+		t.Errorf("The session t1 could not be generated: %v", err)
+	}
+	t2, err := ts.Add(nil)
+	if err != nil {
+		t.Errorf("The session t2 could not be generated: %v", err)
+	}
 
 	if err := ts.Get(t1, nil); err != nil {
 		t.Error("The session t1 was not stored")
@@ -103,8 +109,12 @@ func TestSessionHandling(t *testing.T) {
 
 	lastCount, _ := ts.Count()
 	for i := range testValues {
+		var err error
 		item := &testValues[i]
-		item.token = ts.Add()
+		item.token, err = ts.Add(nil)
+		if err != nil {
+			t.Errorf("A new session could not be generated: %v", err)
+		}
 
 		if count, _ := ts.Count(); count != lastCount+1 {
 			t.Errorf(
@@ -113,7 +123,7 @@ func TestSessionHandling(t *testing.T) {
 		}
 		lastCount, _ = ts.Count()
 
-		err := ts.Set(item.token, item.value)
+		err = ts.Set(item.token, item.value)
 		if err != nil {
 			t.Errorf("The session %s could not be set", item.ref)
 		}
@@ -173,7 +183,7 @@ func BenchmarkSessionCreation(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		ts.Add()
+		ts.Add(nil)
 	}
 }
 
@@ -186,6 +196,6 @@ func BenchmarkSessionCreationFast(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		ts.Add()
+		ts.Add(nil)
 	}
 }

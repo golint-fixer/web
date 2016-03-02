@@ -54,18 +54,24 @@ func (s *SessionStore) Get(token string, ref interface{}) error {
 
 // Add creates a new unique token and stores it into current SessionCache
 // instance.
-func (s *SessionStore) Add() string {
+//
+// Errors
+//
+// io.ErrUnexpectedEOF when random source cannot deliver enough bytes.
+//
+// dot.DuplicatedKeyError when generated key already exists.
+func (s *SessionStore) Add(value interface{}) (string, error) {
 	strSum, err := s.salter.Token(0)
 	if err != nil {
-		panic("Could not generate a new token")
+		return "", err
 	}
 
-	err = s.cache.Add(strSum, nil)
+	err = s.cache.Add(strSum, value)
 	if err != nil {
-		panic("Something is seriously wrong, a duplicated token was generated")
+		return "", err
 	}
 
-	return strSum
+	return strSum, nil
 }
 
 // Delete deletes specified token from current SessionCache instance.
@@ -90,4 +96,10 @@ func (s *SessionStore) Set(token string, value interface{}) error {
 		return InvalidTokenError(token)
 	}
 	return nil
+}
+
+// SetTransient defines whether should not extends expiration of stored value
+// when it is read or written.
+func (s *SessionStore) SetTransient(val bool) {
+	s.cache.SetTransient(val)
 }
