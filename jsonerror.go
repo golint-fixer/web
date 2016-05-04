@@ -27,7 +27,7 @@ type JSONError struct {
 	// HTTP status code.
 	Status int `json:"status,omitempty"`
 	// Error code.
-	Code int `json:"code,omitempty"`
+	Code string `json:"code,omitempty"`
 	// Error type.
 	Type string `json:"type,omitempty"`
 	// A message with error details.

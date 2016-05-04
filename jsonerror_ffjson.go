@@ -38,9 +38,9 @@ func (mj *JSONError) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 		fflib.FormatBits2(buf, uint64(mj.Status), 10, mj.Status < 0)
 		buf.WriteByte(',')
 	}
-	if mj.Code != 0 {
+	if len(mj.Code) != 0 {
 		buf.WriteString(`"code":`)
-		fflib.FormatBits2(buf, uint64(mj.Code), 10, mj.Code < 0)
+		fflib.WriteJsonString(buf, string(mj.Code))
 		buf.WriteByte(',')
 	}
 	if len(mj.Type) != 0 {
@@ -294,27 +294,23 @@ handle_Status:
 
 handle_Code:
 
-	/* handler: uj.Code type=int kind=int quoted=false*/
+	/* handler: uj.Code type=string kind=string quoted=false*/
 
 	{
-		if tok != fflib.FFTok_integer && tok != fflib.FFTok_null {
-			return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for int", tok))
+
+		{
+			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for string", tok))
+			}
 		}
-	}
-
-	{
 
 		if tok == fflib.FFTok_null {
 
 		} else {
 
-			tval, err := fflib.ParseInt(fs.Output.Bytes(), 10, 64)
+			outBuf := fs.Output.Bytes()
 
-			if err != nil {
-				return fs.WrapErr(err)
-			}
-
-			uj.Code = int(tval)
+			uj.Code = string(string(outBuf))
 
 		}
 	}

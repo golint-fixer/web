@@ -27,7 +27,7 @@ type JSONErrorBuilder interface {
 	Build() *JSONError
 
 	// CustomError sets current instance from specified error.
-	CustomError(code int, errorType, msg string) JSONErrorBuilder
+	CustomError(code, errorType, msg string) JSONErrorBuilder
 
 	// FromError sets current instance based on native error.
 	FromError(e error) JSONErrorBuilder
@@ -58,11 +58,7 @@ func (b *jsonErrorBuilder) Build() *JSONError {
 	return &b.instance
 }
 
-func (b *jsonErrorBuilder) CustomError(
-	code int,
-	errorType,
-	msg string,
-) JSONErrorBuilder {
+func (b *jsonErrorBuilder) CustomError(code, errorType, msg string) JSONErrorBuilder {
 	b.instance.Code = code
 	b.instance.Type = errorType
 	b.instance.Message = msg
