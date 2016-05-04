@@ -24,7 +24,7 @@ import (
 // A JSONErrorBuilder provides methods to construct a new JSONError.
 type JSONErrorBuilder interface {
 	// Build creates and returns a new JSONError.
-	Build() JSONError
+	Build() *JSONError
 
 	// CustomError sets current instance from specified error.
 	CustomError(code int, errorType, msg string) JSONErrorBuilder
@@ -54,8 +54,8 @@ func NewJSONError() JSONErrorBuilder {
 	}}
 }
 
-func (b *jsonErrorBuilder) Build() JSONError {
-	return b.instance
+func (b *jsonErrorBuilder) Build() *JSONError {
+	return &b.instance
 }
 
 func (b *jsonErrorBuilder) CustomError(

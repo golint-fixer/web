@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
+//go:generate ffjson $GOFILE
+
 package web
+
+import (
+	"bytes"
+)
 
 // A JSONError represents an error returned by JSON-based API.
 type JSONError struct {
@@ -28,4 +34,26 @@ type JSONError struct {
 	Message string `json:"message,omitempty"`
 	// A URL for reference.
 	MoreInfo string `json:"moreInfo,omitempty"`
+}
+
+// Error returns string representation of current instance error.
+func (e *JSONError) Error() string {
+	var buf bytes.Buffer
+	if len(e.Type) > 0 {
+		buf.WriteString(e.Type)
+		buf.WriteString(": ")
+	}
+	buf.WriteString(e.Message)
+	if len(e.MoreInfo) > 0 {
+		buf.WriteString(" (")
+		buf.WriteString(e.MoreInfo)
+		buf.WriteString(")")
+	}
+
+	return buf.String()
+}
+
+// String returns string representation of current instance.
+func (e *JSONError) String() string {
+	return e.Error()
 }
