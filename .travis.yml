@@ -18,6 +18,7 @@ before_script:
   - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 
 script:
+  - go get -v -t ./...
   - go test -v --race ./...
   - goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
 
